@@ -24,8 +24,8 @@ def get_parameters(cfg: DictConfig):
     seed_everything(cfg.general.seed)
 
     # getting basic configuration
-    if cfg.general.get("gpus", None) is None:
-        cfg.general.gpus = os.environ.get("CUDA_VISIBLE_DEVICES", None)
+    if cfg.general.get("devices", None) is None:
+        cfg.general.devices = os.environ.get("CUDA_VISIBLE_DEVICES", None)
     loggers = []
 
     # cfg.general.experiment_id = "0" # str(Repo("./").commit())[:8]
@@ -76,9 +76,10 @@ def train(cfg: DictConfig):
 
     runner = Trainer(
         logger=loggers,
-        gpus=cfg.general.gpus,
+        accelerator=cfg.general.accelerator,
+        devices=cfg.general.devices,
         callbacks=callbacks,
-        weights_save_path=str(cfg.general.save_dir),
+        # weights_save_path=str(cfg.general.save_dir),
         **cfg.trainer,
     )
     runner.fit(model)
@@ -92,9 +93,10 @@ def test(cfg: DictConfig):
     os.chdir(hydra.utils.get_original_cwd())
     cfg, model, loggers = get_parameters(cfg)
     runner = Trainer(
-        gpus=cfg.general.gpus,
+        accelerator=cfg.general.accelerator,
+        devices=cfg.general.devices,
         logger=loggers,
-        weights_save_path=str(cfg.general.save_dir),
+        # weights_save_path=str(cfg.general.save_dir),
         **cfg.trainer,
     )
     runner.test(model)
